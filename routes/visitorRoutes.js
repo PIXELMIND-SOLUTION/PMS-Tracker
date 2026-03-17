@@ -49,12 +49,32 @@ router.get("/visitors", async (req, res) => {
 // 🔹 Get IP Details (for modal)
 router.get("/ip-details/:ip", async (req, res) => {
   try {
+    const ip = req.params.ip;
+
+    console.log("Fetching IP:", req.params.ip);
+
     const response = await axios.get(
-      `https://ipapi.co/${req.params.ip}/json/`
+      `https://ipwho.is/${ip}`,
+      { timeout: 5000 }
     );
+
+    // API-level error handling
+    if (!response.data.success) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid or private IP",
+      });
+    }
+
     res.json(response.data);
-  } catch {
-    res.status(500).json({ error: "Failed to fetch IP details" });
+
+  } catch (err) {
+    console.error("IP FETCH ERROR:", err.message);
+
+    res.status(500).json({
+      error: true,
+      message: "External API failed",
+    });
   }
 });
 
